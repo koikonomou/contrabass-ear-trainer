@@ -21,8 +21,8 @@ fingerboard.
 **Read it** — A note appears on the staff. Same question: where does your hand go?
 This is the one that turns bass clef from "a puzzle" into "a position."
 
-**Explore** — No score, no timer, nobody watching. Tap around the fingerboard, hear
-what you get, run a scale. Good for warming up or for just poking at it.
+**Play along** — No score, no timer, nobody watching. Tap around the fingerboard, hear
+what you get, or play the scale with a metronome at your own tempo and play along. Good for warming up or for just poking at it.
 
 ---
 
@@ -30,7 +30,7 @@ what you get, run a scale. Good for warming up or for just poking at it.
 
 | | |
 |---|---|
-| **Scales** | F, B♭ and G major, one octave each |
+| **Scales** | F, B♭ and G major to start. Add each new scale you learn with **+ New scale**, and practise them all together with **Mix** |
 | **Note names** | A B C · Do Re Mi · Ντο Ρε Μι |
 | **Fingerings** | Simandl 1–2–4, as taught in class: F and B♭ in half position (1 4 0 1 4 0 2 4), G in 1st position (2 0 1 2 0 1 4 0) |
 
