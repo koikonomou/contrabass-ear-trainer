@@ -167,6 +167,11 @@ h1{margin:2px 0 0;font-family:var(--font-display);font-weight:800;font-size:clam
 .staff-line{stroke:var(--ink);stroke-width:1.2}
 .staff-ink{fill:var(--ink)}
 .staff-stroke{stroke:var(--ink);fill:none}
+.staff-box.wide{flex-basis:100%;max-width:440px;margin-inline:auto}
+.snote{cursor:pointer}
+.staff-on{fill:var(--accent);stroke:var(--accent);stroke-width:2.4}
+.staff-fing{fill:var(--muted);font:700 15px var(--font-body);text-anchor:middle}
+.staff-fing.on{fill:var(--accent);font-weight:800}
 .staff-q{fill:var(--muted);font:800 34px var(--font-display);text-anchor:middle}
 .staff-acc{fill:var(--ink);font:400 24px var(--font-body);text-anchor:middle}
 
@@ -188,15 +193,6 @@ h1{margin:2px 0 0;font-family:var(--font-display);font-weight:800;font-size:clam
   </header>
 
   <section id="settingsPanel" class="settings" hidden aria-label="Settings">
-    <div class="field">
-      <label for="setRange">Fingerboard range</label>
-      <select id="setRange">
-        <option value="0">Open strings only</option>
-        <option value="4">Half &amp; 1st position</option>
-        <option value="7">Up to 3rd/4th position</option>
-        <option value="12">Up to the octave</option>
-      </select>
-    </div>
     <div class="field">
       <label for="setPrelude">Before each note, play</label>
       <select id="setPrelude">
@@ -234,7 +230,7 @@ h1{margin:2px 0 0;font-family:var(--font-display);font-weight:800;font-size:clam
   </section>
 
   <section class="keys" aria-label="Key">
-    <p class="label">Scale</p>
+    <p class="label">Your scales</p>
     <div class="chips" id="keyChips"></div>
   </section>
 
@@ -258,7 +254,7 @@ h1{margin:2px 0 0;font-family:var(--font-display);font-weight:800;font-size:clam
     <p><b>No sound?</b> Turn the iPhone's silent switch off and raise the volume. Headphones let you hear the real low register.</p>
     <p><b>Faint low notes?</b> Phone speakers can't reproduce the bottom of the bass. Turn on "Play an octave higher" in Settings.</p>
     <p><b>Sound:</b> real double bass pizzicato, recorded note by note on each string by the University of Iowa Electronic Music Studios.</p>
-    <p><b>How the board is drawn:</b> you are looking down at your own bass, nut at the top, E string on the left. Light bands mark your home hand position for the chosen scale.</p>
+    <p><b>How the board is drawn:</b> you are looking down at your own bass, nut at the top, E string on the left. Only the notes of your three scales are used, each in the exact spot your teacher showed you.</p>
   </footer>
 </div>
 
@@ -275,7 +271,8 @@ const store = {
 /* ---------- settings & stats ---------- */
 const DEFAULTS = {key:'G', mode:'name', naming:'letters', range:4, prelude:'tonic', hints:'dots', fingers:true, auto:true, octave:false, speed:'medium'};
 const settings = Object.assign({}, DEFAULTS, store.get('cbet.settings', {}));
-settings.range = Number(settings.range);
+settings.range = 4; // half & 1st position: everything taught so far
+if(!['F','Bb','G'].includes(settings.key)) settings.key = 'F';
 const stats = Object.assign({miss:{}}, store.get('cbet.stats', {}));
 const saveSettings = () => store.set('cbet.settings', settings);
 const saveStats = () => store.set('cbet.stats', stats);
@@ -290,22 +287,24 @@ const NAMES = {
   greek:['Ντο','Ρε','Μι','Φα','Σολ','Λα','Σι']
 };
 const KEYS = {
-  F:  {short:'F',  sub:'major', mine:true, notes:['F','G','A','Bb','C','D','E'],  sig:['Bb']},
-  Bb: {short:'B♭', sub:'major', mine:true, notes:['Bb','C','D','Eb','F','G','A'], sig:['Bb','Eb']},
-  G:  {short:'G',  sub:'major', mine:true, notes:['G','A','B','C','D','E','F#'],  sig:['F#']},
-  C:  {short:'C',  sub:'major', notes:['C','D','E','F','G','A','B'], sig:[]},
-  D:  {short:'D',  sub:'major', notes:['D','E','F#','G','A','B','C#'], sig:['F#','C#']},
-  chrom: {short:'All 12', sub:'notes', chromatic:true, notes:['A','Bb','B','C','C#','D','Eb','E','F','F#','G','Ab'], sig:[]}
+  F:  {short:'F',  sub:'major', notes:['F','G','A','Bb','C','D','E'],  sig:['Bb'], frame:1,
+       scale:[[0,1,1],[0,3,4],[1,0,0],[1,1,1],[1,3,4],[2,0,0],[2,2,2],[2,3,4]]},
+  Bb: {short:'B♭', sub:'major', notes:['Bb','C','D','Eb','F','G','A'], sig:['Bb','Eb'], frame:1,
+       scale:[[1,1,1],[1,3,4],[2,0,0],[2,1,1],[2,3,4],[3,0,0],[3,2,2],[3,3,4]]},
+  G:  {short:'G',  sub:'major', notes:['G','A','B','C','D','E','F#'],  sig:['F#'], frame:2,
+       scale:[[0,3,2],[1,0,0],[1,2,1],[1,3,2],[2,0,0],[2,2,1],[2,4,4],[3,0,0]]}
 };
+// one-octave scales exactly as written on the teacher's whiteboard
+const CHROM = ['A','Bb','B','C','C#','D','Eb','E','F','F#','G','Ab'];
 const SIG_DN = {Bb:20, Eb:23, 'F#':24, 'C#':21}; // positions on the bass-clef staff
 const parse = str => { const l = LETTERS.indexOf(str[0]); const acc = str.length > 1 ? (str[1] === 'b' ? -1 : 1) : 0; return {l, acc, pc:(LETTER_PC[l] + acc + 12) % 12, str}; };
-const keyObj = () => KEYS[settings.key] || KEYS.G;
+const keyObj = () => KEYS[settings.key] || KEYS.F;
 const keyNotes = () => keyObj().notes.map(parse);
 const inKey = pc => keyNotes().some(n => n.pc === ((pc % 12) + 12) % 12);
-const tonicPc = () => parse(keyObj().notes[0]).pc; // chromatic: A (tuning reference)
+const tonicPc = () => parse(keyObj().notes[0]).pc;
 function spell(midi){
   const pc = ((midi % 12) + 12) % 12;
-  const n = keyNotes().find(x => x.pc === pc) || KEYS.chrom.notes.map(parse).find(x => x.pc === pc);
+  const n = keyNotes().find(x => x.pc === pc) || CHROM.map(parse).find(x => x.pc === pc);
   return Object.assign({midi}, n);
 }
 const accSym = a => a < 0 ? '♭' : a > 0 ? '♯' : '';
@@ -313,36 +312,18 @@ const noteName = sp => NAMES[settings.naming][sp.l] + accSym(sp.acc);
 const nameMidi = m => noteName(spell(m));
 
 /* ---------- positions & fingering ---------- */
-const displayMax = () => Math.max(settings.range, 4);
+const displayMax = () => 4;
 function allPositions(maxN){ const out = []; STRINGS.forEach((st, s) => { for(let n = 0; n <= maxN; n++) out.push({s, n, midi:st.midi + n}); }); return out; }
-const rangePositions = () => allPositions(settings.range);
-const keyPositions = () => rangePositions().filter(p => inKey(p.midi));
+const scalePositions = () => keyObj().scale.map(([s, n, f]) => ({s, n, f, midi:STRINGS[s].midi + n}));
+const keyPositions = scalePositions;
 const pool = () => [...new Set(keyPositions().map(p => p.midi))].sort((a, b) => a - b);
-const lowestPos = m => allPositions(12).filter(p => p.midi === m).sort((a, b) => a.n - b.n)[0];
+const lowestPos = m => scalePositions().find(p => p.midi === m) || allPositions(4).find(p => p.midi === m);
 
-function homeFrame(){
-  if(keyObj().chromatic) return 2;
-  let best = 1, bc = -1;
-  for(const s of [1, 2]){
-    let c = 0;
-    STRINGS.forEach(st => { for(let n = s; n <= s + 2; n++) if(inKey(st.midi + n)) c++; });
-    if(c > bc){ bc = c; best = s; }
-  }
-  return best;
-}
+const homeFrame = () => keyObj().frame;
 function fingering(){
-  const map = {}; const frame = homeFrame(); const chrom = keyObj().chromatic;
-  STRINGS.forEach((st, s) => {
-    map[s + ':0'] = 0; let cur = frame;
-    for(let n = 1; n <= 12; n++){
-      if(!chrom && !inKey(st.midi + n)) continue;
-      let f;
-      if(n < cur) f = 1;
-      else if(n <= cur + 2) f = [1, 2, 4][n - cur];
-      else { cur = n; f = 1; }
-      map[s + ':' + n] = f;
-    }
-  });
+  const map = {0:0};
+  STRINGS.forEach((st, s) => { map[s + ':0'] = 0; });
+  scalePositions().forEach(p => { map[p.s + ':' + p.n] = p.f; });
   return map;
 }
 const POS_NAMES = {1:'½', 2:'I', 3:'II', 5:'III', 7:'IV'};
@@ -426,7 +407,6 @@ function stopAll(){
 /* ---------- reference before a question ---------- */
 function lowestTonic(){ let t = 28; while(t % 12 !== tonicPc()) t++; return t; }
 function refNotes(target){
-  if(keyObj().chromatic) return [33]; // open A
   const t = lowestTonic();
   if(settings.prelude === 'arp') return [t, t + 4, t + 7, t + 12];
   let r = target - (((target - tonicPc()) % 12) + 12) % 12;
@@ -537,9 +517,7 @@ function runSequence(midis){
   });
 }
 function scaleSeq(){
-  const pl = pool(); const t = pl.find(m => m % 12 === tonicPc());
-  if(t == null) return pl;
-  const up = pl.filter(m => m >= t && m <= t + 12);
+  const up = scalePositions().map(p => p.midi);
   return up.concat(up.slice(0, -1).reverse());
 }
 
@@ -570,6 +548,29 @@ function staffSVG(sp, placeholder){
   } else if(placeholder){
     out.push(`<text class="staff-q" x="${nx}" y="${yOf(22) + 12}">?</text>`);
   }
+  out.push('</svg>');
+  return out.join('');
+}
+
+function scaleStaffSVG(cur){
+  const h = 6, Y0 = 92, yOf = dn => Y0 - (dn - 18) * h, W = 380, H = 142;
+  const out = [`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${keyObj().short} major scale with fingerings">`];
+  for(let dn = 18; dn <= 26; dn += 2) out.push(`<line class="staff-line" x1="6" x2="${W - 6}" y1="${yOf(dn)}" y2="${yOf(dn)}"/>`);
+  const yF = yOf(24);
+  out.push(`<circle class="staff-ink" cx="15" cy="${yF}" r="3.8"/>`);
+  out.push(`<path class="staff-stroke" stroke-width="3.2" stroke-linecap="round" d="M13 ${yF} C13 ${yF - 10}, 23 ${yF - 14}, 30 ${yF - 11} C39 ${yF - 7}, 39 ${yF + 8}, 32 ${yF + 17} C26 ${yF + 25}, 18 ${yF + 30}, 9 ${yF + 34}"/>`);
+  out.push(`<circle class="staff-ink" cx="44" cy="${yF - 6}" r="2.3"/><circle class="staff-ink" cx="44" cy="${yF + 6}" r="2.3"/>`);
+  keyObj().sig.forEach((s, i) => { const flat = s[1] === 'b'; out.push(`<text class="staff-acc" x="${60 + i * 13}" y="${yOf(SIG_DN[s]) + (flat ? 3 : 8)}">${flat ? '♭' : '♯'}</text>`); });
+  const ps = scalePositions(), x0 = 104, dx = (W - 20 - x0) / (ps.length - 1);
+  ps.forEach((p, i) => {
+    const sp = spell(p.midi), oct = Math.floor((sp.midi - sp.acc) / 12) - 1, dn = (oct + 1) * 7 + sp.l, x = x0 + i * dx, y = yOf(dn);
+    const on = cur != null && cur === p.midi;
+    for(let d = 16; d >= dn; d -= 2) out.push(`<line class="staff-line" x1="${x - 13}" x2="${x + 13}" y1="${yOf(d)}" y2="${yOf(d)}"/>`);
+    for(let d = 28; d <= dn; d += 2) out.push(`<line class="staff-line" x1="${x - 13}" x2="${x + 13}" y1="${yOf(d)}" y2="${yOf(d)}"/>`);
+    out.push(`<g class="snote${on ? ' on' : ''}" data-s="${p.s}" data-n="${p.n}"><rect x="${x - dx / 2}" y="0" width="${dx}" height="${H}" fill="transparent"/>`
+      + `<ellipse class="${on ? 'staff-on' : 'staff-stroke'}" stroke-width="2.4" cx="${x}" cy="${y}" rx="7.2" ry="5" transform="rotate(-20 ${x} ${y})"/>`
+      + `<text class="staff-fing${on ? ' on' : ''}" x="${x}" y="${H - 8}">${p.f}</text></g>`);
+  });
   out.push('</svg>');
   return out.join('');
 }
@@ -616,7 +617,7 @@ function renderBoard(){
   o.push(`<rect class="fb-head" x="52" y="${TOP}" width="222" height="${NUT - TOP}"/>`);
   o.push(`<g clip-path="url(#fbclip)">`);
   const frame = homeFrame();
-  if(settings.range > 0) for(let n = frame; n <= frame + 2; n++){ const y = yOfN(n); o.push(`<line class="fb-tape" x1="40" x2="290" y1="${y}" y2="${y}"/>`); }
+  for(let n = frame; n <= frame + 2; n++){ const y = yOfN(n); o.push(`<line class="fb-tape" x1="40" x2="290" y1="${y}" y2="${y}"/>`); }
   for(let n = 1; n <= maxN; n++){ const y = yOfN(n); o.push(`<line class="fb-pos" x1="40" x2="290" y1="${y}" y2="${y}"/>`); }
   o.push('</g>');
   o.push(`<rect class="fb-nut" x="52" y="${NUT - 3.5}" width="222" height="7" rx="2"/>`);
@@ -637,11 +638,7 @@ function renderBoard(){
   });
   if(flash && Date.now() - flash.id < 500) o.push(`<circle class="ring flash" cx="${SX[flash.s]}" cy="${yOfN(flash.n)}" r="18"/>`);
   board.innerHTML = o.join('');
-  const fname = keyObj().chromatic ? '' : FRAME_NAME[frame];
-  $('#boardCap').textContent = settings.range === 0
-    ? 'Open strings only: E, A, D and G.'
-    : (fname ? `Home position for ${keyObj().short} major: ${fname}. Fingers 1, 2 and 4 sit on the light bands.` : 'Chromatic: every note in range is in play.')
-      + (settings.fingers ? ' Small numbers are suggested fingers.' : '');
+  $('#boardCap').textContent = `${keyObj().short} major as your teacher wrote it: ${FRAME_NAME[frame]}, fingers ${keyObj().scale.map(x => x[2]).join(' ')}. Light bands mark where fingers 1, 2 and 4 sit.`;
 }
 function hitTest(x, y){
   let s = -1, bd = 1e9;
@@ -667,11 +664,10 @@ function renderPrompt(){
   if(mode === 'explore'){
     head = 'Tap the fingerboard to hear each note.';
     const cur = explore.cur ? STRINGS[explore.cur.s].midi + explore.cur.n : null;
-    staff = staffSVG(cur != null ? spell(cur) : null, false);
+    staff = scaleStaffSVG(cur);
     nameLine = cur != null ? nameMidi(cur) : '';
-    where = cur != null ? whereText(explore.cur, fingering()) : 'Bass music is written an octave higher than it sounds.';
+    where = cur != null ? whereText(explore.cur, fingering()) : 'Tap a note on the staff or the fingerboard. Numbers are your fingers (0 = open string).';
     actions = `<button class="btn primary" data-act="scale">${ICON_PLAY} Play the scale</button>
-      <button class="btn" data-act="all">Play every note in range</button>
       <label class="speed">Speed <select id="setSpeed"><option value="slow">Slow</option><option value="medium">Medium</option><option value="fast">Fast</option></select></label>`;
   } else {
     head = ({name:'Hear it, then name it.', find:'Hear it, then find it.', read:'Read it, then find it.'})[mode];
@@ -702,7 +698,7 @@ function renderPrompt(){
   const msg = mode === 'explore' ? '' : (q.msg || '');
   el.innerHTML = `<div class="prompt-head"><p class="instr">${head}</p><span class="score">${mode === 'explore' ? '' : scoreTxt}</span></div>
     <div class="prompt-body">
-      <div class="staff-box">${staff}<div class="note-name">${nameLine}</div><div class="where">${where}</div></div>
+      <div class="staff-box${mode === 'explore' ? ' wide' : ''}">${staff}<div class="note-name">${nameLine}</div><div class="where">${where}</div></div>
       <div class="actions">${actions}</div>
     </div>
     ${mode === 'explore' ? '' : `<p class="feedback ${q.kind}">${msg}</p>`}`;
@@ -733,9 +729,9 @@ function renderTricky(){
     : `<p class="muted">None yet. Notes you miss will collect here and come up more often.</p>`);
 }
 function renderChips(){
-  const order = ['F', 'Bb', 'G', '|', 'C', 'D', 'chrom'];
+  const order = ['F', 'Bb', 'G'];
   $('#keyChips').innerHTML = order.map(k => k === '|' ? '<span class="chip-sep" aria-hidden="true"></span>' :
-    `<button class="chip${KEYS[k].mine ? ' mine' : ''}" data-key="${k}" aria-pressed="${settings.key === k}">${KEYS[k].short}<small>${KEYS[k].sub}</small></button>`).join('');
+    `<button class="chip" data-key="${k}" aria-pressed="${settings.key === k}">${KEYS[k].short}<small>${KEYS[k].sub}</small></button>`).join('');
 }
 const MODES = [
   {id:'name', t:'Name it', s:'Hear a note, pick its name'},
@@ -758,6 +754,8 @@ $('#modeTabs').addEventListener('click', e => {
   settings.mode = b.dataset.mode; saveSettings(); resetQuestion();
 });
 $('#prompt').addEventListener('click', e => {
+  const sn = e.target.closest('.snote');
+  if(sn){ onTap({s:Number(sn.dataset.s), n:Number(sn.dataset.n)}); return; }
   const b = e.target.closest('[data-act]'); if(!b) return;
   ensureAudio();
   const act = b.dataset.act;
@@ -767,7 +765,6 @@ $('#prompt').addEventListener('click', e => {
   else if(act === 'reveal'){ markMiss(); stopAll(); play(q.target); solve(true); }
   else if(act === 'showname'){ q.showName = true; renderPrompt(); }
   else if(act === 'scale') runSequence(scaleSeq());
-  else if(act === 'all') runSequence(pool());
 });
 $('#prompt').addEventListener('change', e => {
   if(e.target.id === 'setSpeed'){ settings.speed = e.target.value; saveSettings(); }
@@ -790,7 +787,6 @@ const sBtn = $('#settingsBtn'), panel = $('#settingsPanel');
 sBtn.addEventListener('click', () => { panel.hidden = !panel.hidden; sBtn.setAttribute('aria-expanded', String(!panel.hidden)); });
 const bindSelect = (id, key, after) => { const el = $(id); el.value = String(settings[key]); el.addEventListener('change', () => { settings[key] = key === 'range' ? Number(el.value) : el.value; saveSettings(); after(); }); };
 const bindCheck = (id, key, after) => { const el = $(id); el.checked = !!settings[key]; el.addEventListener('change', () => { settings[key] = el.checked; saveSettings(); after(); }); };
-bindSelect('#setRange', 'range', () => { lastTarget = null; resetQuestion(); });
 bindSelect('#setPrelude', 'prelude', render);
 bindSelect('#setNaming', 'naming', render);
 bindSelect('#setHints', 'hints', render);
