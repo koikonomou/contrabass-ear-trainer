@@ -1,25 +1,80 @@
-# Contrabass Ear Trainer
+# 🎻 Contrabass Ear Trainer
 
-A free ear trainer for beginner double bass players, focused on pizzicato.
-Open it in any browser (on iPhone: Safari, then Share > Add to Home Screen).
+**[→ Open the app](https://koikonomou.github.io/contrabass-ear-trainer/)**
 
-- **Name it**: hear a note, pick its name.
-- **Find it**: hear a note, tap where you would play it on the fingerboard.
-- **Read it**: see a note in bass clef, tap where you would play it.
-- **Explore**: tap the fingerboard to hear notes; play scales.
+The double bass has no frets, a neck roughly the length of your arm, and absolutely
+no interest in telling you where the notes are. You have to learn that part yourself —
+which, as a researcher, is the only way I know how to work anyway.
 
-Scales: F, B-flat, G, C and D major, or all 12 notes. Note names in letters,
-Do-Re-Mi, or Greek (Ντο Ρε Μι). Suggested fingerings use the Simandl 1-2-4 system.
+If you've just picked up the bass and stumbled onto this page: welcome. I made this
+because I needed it, and if it's useful to you too, that makes me very happy.
 
-Everything is in one self-contained `index.html` (no build step, no server, no tracking).
-Progress is stored only in the browser's local storage.
+---
+
+## What's in it
+
+**Name it** — A note plays. What was it? Just you, your ears, and four buttons.
+
+**Find it** — A note plays. Now show me where your hand goes. Tap the spot on the
+fingerboard.
+
+**Read it** — A note appears on the staff. Same question: where does your hand go?
+This is the one that turns bass clef from "a puzzle" into "a position."
+
+**Explore** — No score, no timer, nobody watching. Tap around the fingerboard, hear
+what you get, run a scale. Good for warming up or for just poking at it.
+
+---
+
+## Settings
+
+| | |
+|---|---|
+| **Scales** | F, B♭, G, C, D major — or all 12 notes if you're feeling brave |
+| **Note names** | A B C · Do Re Mi · Ντο Ρε Μι |
+| **Fingerings** | Simandl 1–2–4, as suggestions |
+
+---
+
+## Getting it on your phone
+
+There's nothing to install, really.
+
+- **iPhone** — open it in Safari, then **Share → Add to Home Screen**
+- **Android** — Chrome menu → **Add to Home screen**
+- **Desktop** — a bookmark will do fine
+
+Headphones are strongly recommended. Phone speakers and low E have never been friends.
+
+---
+
+## Under the hood
+
+One file. `index.html`. No build step, no server, no framework, no accounts,
+no tracking, no cookie banner asking you about your legitimate interests.
+
+Your progress is stored in your browser's local storage, which means it never leaves
+your device — and also means that clearing your browser data wipes it. Fair trade.
+
+---
 
 ## Sound credits
 
-Double bass pizzicato recordings (mezzo-forte, one per string position) are from the
+The pizzicato recordings (mezzo-forte, one per string position) come from the
 [University of Iowa Musical Instrument Samples](https://theremin.music.uiowa.edu/MIS.html),
-Electronic Music Studios, recorded by Lawrence Fritts and staff. They are freely available
-"for any projects, without restrictions". The recordings were trimmed, loudness-matched and
-encoded to MP3; each note is retuned in the browser from its measured pitch.
+recorded at the Electronic Music Studios by Lawrence Fritts and staff, and shared
+freely for any project without restrictions. Huge thanks to them — a real bass makes
+all the difference.
 
-**Open the app:** https://koikonomou.github.io/contrabass-ear-trainer/
+I trimmed them, matched the loudness, encoded them to MP3, and the browser retunes
+each note from its measured pitch.
+
+---
+
+## A word of honesty
+
+I'm a beginner too. The fingerings are the standard Simandl suggestions, not gospel,
+and your teacher's advice beats mine every time. If you spot something wrong — a bad
+note, a bad position, a bug — please open an issue. I'd rather know.
+
+Now go practice. 🎶
