@@ -124,6 +124,7 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .tbtn{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-size:22px;font-weight:700;line-height:1}
 .tempo input[type=range]{width:100%;accent-color:var(--accent);height:32px}
 .actions .check{min-height:32px}
+.btn.toggle[aria-pressed="false"]{background:transparent;border-style:dashed;color:var(--muted)}
 .feedback{margin:0;min-height:1.45em;font-size:15.5px}
 .feedback.good{color:var(--ok);font-weight:700}
 .feedback.bad{color:var(--bad);font-weight:700}
@@ -554,33 +555,37 @@ function runSequence(ps){
     seqTimers.push(setTimeout(() => { explore.cur = {s:p.s, n:p.n, midi:p.midi}; flash = {s:p.s, n:p.n, id:Date.now()}; render(); }, i * gap * 1000 + 30));
   });
 }
-let along = null;
+let along = null; // running metronome: {next: time of next beat, i: beat number (-4..-1 = count-in), timer}
 function startAlong(){
   const f = focus(); if(!f || !ensureAudio()) return;
   stopSequence(); stopAll();
-  along = {};
-  const beat = 60 / settings.bpm;
-  let t = ctx.currentTime + 0.2;
-  if(settings.metro){ for(let i = 0; i < 4; i++) clickAt(t + i * beat, i === 0); t += 4 * beat; } // count-in: 1 bar
-  schedulePass(t);
+  const a = along = {next:ctx.currentTime + 0.2, i:-4, timer:null};
+  a.timer = setInterval(() => tickAlong(a), 25); // schedule a little ahead, one beat at a time,
+  tickAlong(a);                                   // so tempo and sound changes apply right away
   renderPrompt();
 }
-function schedulePass(t0){
-  const f = focus(); if(!f || !along) return;
-  const beat = 60 / settings.bpm, ps = scaleSeq(f), beats = Math.ceil((ps.length + 1) / 4) * 4; // fill whole 4/4 bars
-  for(let i = 0; i < beats; i++){
-    const when = t0 + i * beat, p = ps[i];
-    if(settings.metro) clickAt(when, i % 4 === 0);
-    if(!p) continue;
-    playAt(p.midi, when, 1, p.s);
-    seqTimers.push(setTimeout(() => { explore.cur = {s:p.s, n:p.n, midi:p.midi}; flash = {s:p.s, n:p.n, id:Date.now()}; renderBoard(); updateExploreStaff(); }, Math.max(0, (when - ctx.currentTime) * 1000)));
+function tickAlong(a){
+  if(along !== a){ clearInterval(a.timer); return; }
+  const ps = scaleSeq(focus()), beats = Math.ceil((ps.length + 1) / 4) * 4; // whole 4/4 bars
+  while(a.next < ctx.currentTime + 0.12){
+    const when = a.next, i = a.i;
+    if(i < 0) clickAt(when, i === -4); // count-in: always 4 clicks
+    else {
+      if(settings.metro) clickAt(when, i % 4 === 0);
+      const p = ps[i];
+      if(p){
+        playAt(p.midi, when, 1, p.s);
+        seqTimers.push(setTimeout(() => { if(along !== a) return; explore.cur = {s:p.s, n:p.n, midi:p.midi}; flash = {s:p.s, n:p.n, id:Date.now()}; renderBoard(); updateExploreStaff(); }, Math.max(0, (when - ctx.currentTime) * 1000)));
+      }
+    }
+    a.next += 60 / settings.bpm; a.i++;
+    if(a.i >= beats){
+      if(settings.loop){ a.i = 0; continue; }
+      clearInterval(a.timer); // let the last note ring out, then show Play again
+      seqTimers.push(setTimeout(() => { if(along === a){ along = null; if(settings.mode === 'explore') renderPrompt(); } }, Math.max(0, (a.next - ctx.currentTime) * 1000)));
+      return;
+    }
   }
-  const end = t0 + beats * beat;
-  seqTimers.push(setTimeout(() => {
-    if(!along) return;
-    if(settings.loop) schedulePass(end);
-    else seqTimers.push(setTimeout(stopAlong, 400));
-  }, Math.max(0, (end - ctx.currentTime - 0.4) * 1000)));
 }
 function stopAlong(){ along = null; stopSequence(); stopAll(); if(settings.mode === 'explore') renderPrompt(); }
 function updateExploreStaff(){
@@ -729,6 +734,8 @@ function hitTest(x, y){
 const ICON_PLAY = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 3.5v13l11-6.5z" fill="currentColor"/></svg>';
 const ICON_AGAIN = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3a7 7 0 1 0 7 7h-2.2A4.8 4.8 0 1 1 10 5.2V8l4-3.9L10 0z" fill="currentColor"/></svg>';
 const ICON_STOP = '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="4.5" width="11" height="11" rx="1.5" fill="currentColor"/></svg>';
+const ICON_SOUND = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"/><path d="M13 7a4 4 0 0 1 0 6M15.2 4.8a7 7 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+const ICON_MUTE = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"/><path d="M13 7.5l5 5M18 7.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
 const ICON_TICK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.6 2.5L10 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function refLabel(sc){ return settings.prelude === 'arp' ? 'Hear the key chord' : `Hear the key note (${noteName(parse(sc.tonic))})`; }
 
@@ -747,7 +754,7 @@ function renderPrompt(){
         <div class="tempo-row"><button class="tbtn" data-act="slower" aria-label="Slower">−</button><output id="bpmOut">${settings.bpm}</output><span class="bpm">BPM</span><button class="tbtn" data-act="faster" aria-label="Faster">+</button></div>
         <input type="range" id="bpm" min="40" max="160" step="2" value="${settings.bpm}" aria-label="Tempo in beats per minute">
       </div>
-      <label class="check"><input type="checkbox" id="metro"${settings.metro ? ' checked' : ''}> Metronome</label>
+      <button class="btn toggle" data-act="metro" aria-pressed="${settings.metro}">${settings.metro ? ICON_SOUND : ICON_MUTE} Metronome sound: ${settings.metro ? 'On' : 'Off'}</button>
       <label class="check"><input type="checkbox" id="loop"${settings.loop ? ' checked' : ''}> Repeat</label>
       ${along ? `<button class="btn primary big" data-act="stop">${ICON_STOP} Stop</button>` : `<button class="btn primary big" data-act="along">${ICON_PLAY} Play</button>`}`;
   } else {
@@ -848,6 +855,7 @@ $('#prompt').addEventListener('click', e => {
   else if(act === 'showname'){ q.showName = true; renderPrompt(); }
   else if(act === 'along') startAlong();
   else if(act === 'stop') stopAlong();
+  else if(act === 'metro'){ settings.metro = !settings.metro; saveSettings(); renderPrompt(); }
   else if(act === 'slower' || act === 'faster') setBpm(settings.bpm + (act === 'faster' ? 4 : -4));
 });
 function setBpm(v){
@@ -856,7 +864,7 @@ function setBpm(v){
 }
 $('#prompt').addEventListener('input', e => { if(e.target.id === 'bpm') setBpm(Number(e.target.value)); });
 $('#prompt').addEventListener('change', e => {
-  if(['metro', 'loop'].includes(e.target.id)){ settings[e.target.id] = e.target.checked; saveSettings(); }
+  if(e.target.id === 'loop'){ settings[e.target.id] = e.target.checked; saveSettings(); }
 });
 $('#answers').addEventListener('click', e => {
   const b = e.target.closest('[data-pc]'); if(!b || b.disabled) return;
