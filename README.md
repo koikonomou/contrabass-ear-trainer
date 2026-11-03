@@ -21,3 +21,5 @@ Double bass pizzicato recordings (mezzo-forte, one per string position) are from
 Electronic Music Studios, recorded by Lawrence Fritts and staff. They are freely available
 "for any projects, without restrictions". The recordings were trimmed, loudness-matched and
 encoded to MP3; each note is retuned in the browser from its measured pitch.
+
+**Open the app:** https://koikonomou.github.io/contrabass-ear-trainer/
