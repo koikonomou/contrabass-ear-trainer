@@ -122,7 +122,7 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .tempo-row output{font-family:var(--font-display);font-weight:800;font-size:30px;min-width:2.2em;text-align:center;font-variant-numeric:tabular-nums}
 .tempo-row .bpm{font-size:13px;color:var(--muted);font-weight:700;margin-right:auto}
 .tbtn{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-size:22px;font-weight:700;line-height:1}
-.tempo input[type=range]{width:100%;accent-color:var(--accent);height:32px}
+.tempo input[type=range],input.vol{width:100%;accent-color:var(--accent);height:32px}
 .actions .check{min-height:32px}
 .hint{margin:-2px 0 0;font-size:13.5px;color:var(--muted)}
 .count{display:inline-flex;gap:14px}
@@ -197,6 +197,10 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 
   <section id="settingsPanel" class="settings" hidden aria-label="Settings">
     <div class="field">
+      <label for="setVolume">Volume</label>
+      <input type="range" id="setVolume" class="vol" min="0" max="100" step="1">
+    </div>
+    <div class="field">
       <label for="setPrelude">Before each note, play</label>
       <select id="setPrelude">
         <option value="none">Nothing</option>
@@ -224,6 +228,7 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
       <span class="label">Options</span>
       <label class="check"><input type="checkbox" id="setFingers"> Show finger numbers</label>
       <label class="check"><input type="checkbox" id="setAuto"> Next note automatically</label>
+      <label class="check"><input type="checkbox" id="setBoost"> Phone speaker boost (louder bass)</label>
       <label class="check"><input type="checkbox" id="setOctave"> Play an octave higher (phone speaker)</label>
     </div>
     <p class="credit wide">Sounds: University of Iowa Musical Instrument Samples. Progress is saved on this device.</p>
@@ -258,7 +263,7 @@ const store = {
 };
 
 /* ---------- settings, stats, scale library ---------- */
-const DEFAULTS = {sel:'F', mode:'name', naming:'letters', prelude:'tonic', hints:'dots', fingers:true, auto:true, octave:false, bpm:60, metro:true, loop:false};
+const DEFAULTS = {sel:'F', mode:'name', naming:'letters', prelude:'tonic', hints:'dots', fingers:true, auto:true, octave:false, bpm:60, metro:true, loop:false, volume:85, boost:true};
 const savedSettings = store.get('cbet.settings', {});
 const settings = Object.assign({}, DEFAULTS, savedSettings);
 if(savedSettings.key && !savedSettings.sel) settings.sel = savedSettings.key; // older version stored "key"
@@ -362,22 +367,50 @@ function whereAll(m){
 // University of Iowa Musical Instrument Samples. "c" = measured tuning offset in cents.
 const SAMPLES = JSON.parse(document.getElementById('bass-samples').textContent);
 const OPEN = STRINGS.map(s => s.midi);
-let ctx = null, bus = null, gen = 0; const decoded = new Map(); let active = [];
+let ctx = null, bus = null, clickBus = null, chain = null, gen = 0; const decoded = new Map(); let active = [];
 function ensureAudio(){
   if(!ctx){
     try{ if(navigator.audioSession) navigator.audioSession.type = 'playback'; }catch(e){}
     const AC = window.AudioContext || window.webkitAudioContext;
     if(!AC) return false;
     ctx = new AC();
-    const master = ctx.createGain(); master.gain.value = 1;
-    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -10; comp.ratio.value = 3;
-    master.connect(comp); comp.connect(ctx.destination);
-    bus = master;
+    chain = buildChain(ctx);
+    chain.out.connect(ctx.destination);
+    bus = chain.noteIn; clickBus = chain.clickIn;
+    applySound();
     Object.keys(SAMPLES).forEach(getSample); // decode everything in the background
   }
   if(ctx.state !== 'running') ctx.resume().catch(() => {});
   return true;
 }
+// Output chain. Phone speakers cannot reproduce a bass's low fundamentals, so the
+// "phone speaker boost" adds upper harmonics of each note (the ear hears the pitch
+// from them), lifts the pluck's presence, and removes sub-bass the speaker can't
+// play; a limiter then allows much more overall volume without crackling.
+function buildChain(c){
+  const noteIn = c.createGain(), clickIn = c.createGain(), sum = c.createGain(), vol = c.createGain(), out = c.createGain();
+  clickIn.gain.value = 0.55;
+  const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.Q.value = 0.7;
+  const presence = c.createBiquadFilter(); presence.type = 'peaking'; presence.frequency.value = 900; presence.Q.value = 0.9;
+  noteIn.connect(hp); hp.connect(presence); presence.connect(sum);
+  const lo = c.createBiquadFilter(); lo.type = 'lowpass'; lo.frequency.value = 260;
+  const shaper = c.createWaveShaper(), curve = new Float32Array(2048), k = 4;
+  for(let i = 0; i < curve.length; i++){ const x = i / (curve.length - 1) * 2 - 1; curve[i] = Math.tanh(k * x) / Math.tanh(k); }
+  shaper.curve = curve; shaper.oversample = '2x';
+  const hi = c.createBiquadFilter(); hi.type = 'highpass'; hi.frequency.value = 160;
+  const exciter = c.createGain();
+  noteIn.connect(lo); lo.connect(shaper); shaper.connect(hi); hi.connect(exciter); exciter.connect(sum);
+  const limiter = c.createDynamicsCompressor();
+  limiter.threshold.value = -14; limiter.knee.value = 2; limiter.ratio.value = 20; limiter.attack.value = 0.002; limiter.release.value = 0.15;
+  sum.connect(vol); clickIn.connect(vol); vol.connect(limiter); limiter.connect(out); out.gain.value = 1.3;
+  return {noteIn, clickIn, out, set(boost, volume){
+    hp.frequency.value = boost ? 75 : 10;
+    presence.gain.value = boost ? 6 : 0;
+    exciter.gain.value = boost ? 0.9 : 0;
+    vol.gain.value = 0.4 + 4.6 * Math.pow(volume / 100, 1.3); // 100% is about 5x the old level before the limiter
+  }};
+}
+function applySound(){ if(chain) chain.set(settings.boost, settings.volume); }
 function getSample(key){
   if(!decoded.has(key)){
     const bin = atob(SAMPLES[key].d), u = new Uint8Array(bin.length);
@@ -423,7 +456,7 @@ function clickAt(when, accent){ // metronome tick
   g.gain.setValueAtTime(0.0001, when);
   g.gain.exponentialRampToValueAtTime(accent ? 0.9 : 0.55, when + 0.002);
   g.gain.exponentialRampToValueAtTime(0.0001, when + 0.06);
-  o.connect(g); g.connect(bus); o.start(when); o.stop(when + 0.08);
+  o.connect(g); g.connect(clickBus); o.start(when); o.stop(when + 0.08);
   const item = {src:o, g}; active.push(item);
   o.onended = () => { active = active.filter(x => x !== item); };
 }
@@ -767,6 +800,10 @@ function renderPrompt(){
         <div class="tempo-row"><button class="tbtn" data-act="slower" aria-label="Slower">−</button><output id="bpmOut">${settings.bpm}</output><span class="bpm">BPM</span><button class="tbtn" data-act="faster" aria-label="Faster">+</button></div>
         <input type="range" id="bpm" min="40" max="160" step="2" value="${settings.bpm}" aria-label="Tempo in beats per minute">
       </div>
+      <div class="tempo">
+        <span class="label">Volume</span>
+        <input type="range" id="vol" class="vol" min="0" max="100" step="1" value="${settings.volume}" aria-label="Volume">
+      </div>
       <button class="btn toggle" data-act="metro" aria-pressed="${settings.metro}">${settings.metro ? ICON_SOUND : ICON_MUTE} Metronome sound: ${settings.metro ? 'On' : 'Off'}</button>
       <p class="hint">${settings.metro ? '4 clicks count you in, then the metronome keeps the beat under the scale.' : '4 clicks count you in, then you hear only the bass.'}</p>
       <label class="check"><input type="checkbox" id="loop"${settings.loop ? ' checked' : ''}> Repeat</label>
@@ -876,7 +913,13 @@ function setBpm(v){
   settings.bpm = Math.max(40, Math.min(160, Math.round(v))); saveSettings();
   const o = $('#bpmOut'), r = $('#bpm'); if(o) o.textContent = settings.bpm; if(r) r.value = settings.bpm;
 }
-$('#prompt').addEventListener('input', e => { if(e.target.id === 'bpm') setBpm(Number(e.target.value)); });
+function setVolume(v){
+  settings.volume = Math.max(0, Math.min(100, Math.round(v))); saveSettings(); applySound();
+  ['#vol', '#setVolume'].forEach(id => { const el = $(id); if(el && Number(el.value) !== settings.volume) el.value = settings.volume; });
+}
+$('#prompt').addEventListener('input', e => { if(e.target.id === 'bpm') setBpm(Number(e.target.value)); if(e.target.id === 'vol') setVolume(Number(e.target.value)); });
+$('#setVolume').value = settings.volume;
+$('#setVolume').addEventListener('input', e => setVolume(Number(e.target.value)));
 $('#prompt').addEventListener('change', e => {
   if(e.target.id === 'loop'){ settings[e.target.id] = e.target.checked; saveSettings(); }
 });
@@ -903,6 +946,7 @@ bindSelect('#setHints', 'hints', render);
 bindCheck('#setFingers', 'fingers', render);
 bindCheck('#setAuto', 'auto', () => { if(!settings.auto) clearTimeout(autoTimer); });
 bindCheck('#setOctave', 'octave', () => {});
+bindCheck('#setBoost', 'boost', applySound);
 
 if(!library.some(x => x.id === settings.sel)) settings.sel = library[0].id;
 if(settings.mode === 'read') newQuestion(false); else render();
