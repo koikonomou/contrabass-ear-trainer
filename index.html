@@ -70,7 +70,6 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .chip[aria-pressed="true"] small{color:inherit;opacity:.85}
 .chip[aria-pressed="true"] .meter{background:color-mix(in srgb, var(--accent-ink) 30%, transparent)}
 .chip[aria-pressed="true"] .meter i{background:var(--accent-ink)}
-.chip.add{border-style:dashed;background:transparent;justify-content:center;font-size:16px;color:var(--muted)}
 
 /* mode tabs */
 .modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
@@ -79,7 +78,7 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .mode span{font-size:12.5px;color:var(--muted);line-height:1.25}
 .mode[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .mode[aria-selected="true"] span{color:inherit;opacity:.75}
-@media (max-width:560px){ .mode span{display:none} .mode{align-items:center;text-align:center;padding:9px 4px} .mode b{font-size:15.5px} }
+@media (max-width:560px){ .mode span{display:none} .mode{align-items:center;text-align:center;padding:9px 2px;min-width:0} .mode b{font-size:clamp(12.5px,3.7vw,15.5px);letter-spacing:-.01em} }
 
 /* settings */
 .settings{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 20px}
@@ -89,12 +88,7 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .field select{appearance:none;-webkit-appearance:none;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 34px 10px 12px;min-height:44px;width:100%;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
 .check{display:flex;align-items:center;gap:10px;min-height:40px;font-size:15px}
 .check input{width:22px;height:22px;accent-color:var(--accent);flex:none}
-.settings .wide{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
-.lib-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.lib-row b{font-family:var(--font-display);font-size:17px;min-width:90px}
-.lib-row span{color:var(--muted);font-size:13.5px;flex:1 1 120px}
-.mini{border:1px solid var(--line);background:transparent;border-radius:10px;padding:7px 12px;font-weight:700;font-size:14px;min-height:38px}
-.mini.armed{background:var(--bad);border-color:var(--bad);color:var(--on-bad)}
+.settings .wide{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px}
 .credit{font-size:13px;color:var(--muted);margin:0}
 
 /* main grid */
@@ -134,17 +128,6 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .feedback.good{color:var(--ok);font-weight:700}
 .feedback.bad{color:var(--bad);font-weight:700}
 
-/* scale editor */
-.ed-top{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-.ed-top .field{flex:1 1 160px}
-.hint{margin:0;font-size:14px;color:var(--muted)}
-.ed-list{display:flex;flex-wrap:wrap;gap:6px;min-height:44px}
-.ed-note{display:flex;flex-direction:column;align-items:center;gap:1px;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 9px;min-width:52px}
-.ed-note b{font-family:var(--font-display);font-size:17px;line-height:1.1}
-.ed-note span{font-size:11.5px;color:var(--muted);white-space:nowrap}
-.ed-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-@media (max-width:420px){ .ed-actions{grid-template-columns:repeat(2,minmax(0,1fr))} }
-
 /* name buttons */
 .answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:8px}
 .answers[hidden]{display:none!important}
@@ -173,7 +156,6 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .fb-nut{fill:var(--nut)}
 .fb-str{stroke:var(--string)}
 .fb-strname{fill:var(--ink);font:800 15px var(--font-display);text-anchor:middle}
-.dot-grid{fill:var(--string-hi);opacity:.18}
 .dot-ghost{fill:var(--string-hi);opacity:.5}
 .dot-key{fill:var(--dot)}
 .dot-tonic{fill:var(--tonic)}
@@ -195,7 +177,6 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .staff-on{fill:var(--accent);stroke:var(--accent);stroke-width:2.4}
 .staff-fing{fill:var(--muted);font:700 15px var(--font-body);text-anchor:middle}
 .staff-fing.on{fill:var(--accent);font-weight:800}
-.snote{cursor:pointer}
 .staff-q{fill:var(--muted);font:800 34px var(--font-display);text-anchor:middle}
 .staff-acc{fill:var(--ink);font:400 24px var(--font-body);text-anchor:middle}
 
@@ -240,11 +221,7 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
       <label class="check"><input type="checkbox" id="setAuto"> Next note automatically</label>
       <label class="check"><input type="checkbox" id="setOctave"> Play an octave higher (phone speaker)</label>
     </div>
-    <div class="wide">
-      <span class="label">Your scales</span>
-      <div id="libList"></div>
-      <p class="credit">Saved on this device. Sounds: University of Iowa Musical Instrument Samples.</p>
-    </div>
+    <p class="credit wide">Sounds: University of Iowa Musical Instrument Samples. Progress is saved on this device.</p>
   </section>
 
   <section class="chips" id="scaleChips" aria-label="Scales"></section>
@@ -276,7 +253,7 @@ const store = {
 };
 
 /* ---------- settings, stats, scale library ---------- */
-const DEFAULTS = {sel:'F', mode:'name', naming:'letters', prelude:'tonic', hints:'dots', fingers:true, auto:true, octave:false, bpm:60, metro:true, bassOn:true, loop:false};
+const DEFAULTS = {sel:'F', mode:'name', naming:'letters', prelude:'tonic', hints:'dots', fingers:true, auto:true, octave:false, bpm:60, metro:true, loop:false};
 const savedSettings = store.get('cbet.settings', {});
 const settings = Object.assign({}, DEFAULTS, savedSettings);
 if(savedSettings.key && !savedSettings.sel) settings.sel = savedSettings.key; // older version stored "key"
@@ -292,11 +269,7 @@ const STARTERS = [
   {id:'Bb', tonic:'Bb', mode:'major', pos:[[1,1,1],[1,3,4],[2,0,0],[2,1,1],[2,3,4],[3,0,0],[3,2,2],[3,3,4]]},
   {id:'G',  tonic:'G',  mode:'major', pos:[[0,3,2],[1,0,0],[1,2,1],[1,3,2],[2,0,0],[2,2,1],[2,4,4],[3,0,0]]}
 ];
-const validScale = x => x && typeof x.id === 'string' && typeof x.tonic === 'string' && Array.isArray(x.pos)
-  && x.pos.every(p => Array.isArray(p) && p.length === 3 && p[0] >= 0 && p[0] <= 3 && p[1] >= 0 && p[1] <= 12);
-let library = (store.get('cbet.scales', null) || []).filter(validScale);
-if(!library.length) library = JSON.parse(JSON.stringify(STARTERS));
-const saveLibrary = () => store.set('cbet.scales', library);
+const library = STARTERS; // only the scales taught in class
 
 /* ---------- music theory ---------- */
 const STRINGS = [{name:'E', midi:28}, {name:'A', midi:33}, {name:'D', midi:38}, {name:'G', midi:43}];
@@ -310,8 +283,6 @@ const NAMES = {
 const STEPS = {major:[2,2,1,2,2,2,1], minor:[2,1,2,2,1,2,2]};
 const SHARP_DN = {F:24, C:21, G:25, D:22, A:19, E:23, B:20}; // key-signature places on the bass-clef staff
 const FLAT_DN = {B:20, E:23, A:19, D:22, G:18, C:21, F:17};
-const KEY_CHOICES = ['C major','G major','D major','A major','E major','F major','Bb major','Eb major','Ab major',
-  'A minor','E minor','B minor','D minor','G minor','C minor','F minor'];
 const mod12 = x => ((x % 12) + 12) % 12;
 const parse = str => { const l = LETTERS.indexOf(str[0]); const acc = str.length > 1 ? (str[1] === 'b' ? -1 : 1) : 0; return {l, acc, pc:mod12(LETTER_PC[l] + acc)}; };
 const accSym = a => a === 0 ? '' : a > 0 ? '♯'.repeat(a) : '♭'.repeat(-a);
@@ -341,23 +312,11 @@ function spellIn(sc, midi){
   }
   return Object.assign({midi}, n);
 }
-function scaleLabel(sc){
-  const base = noteName(parse(sc.tonic));
-  const same = library.filter(x => x.tonic === sc.tonic && x.mode === sc.mode);
-  const nr = same.length > 1 ? ' ' + (same.indexOf(sc) + 1) : '';
-  return {name: base + nr, sub: sc.mode};
-}
+const scaleLabel = sc => ({name:noteName(parse(sc.tonic)), sub:sc.mode});
 
 /* ---------- what is being practised ---------- */
-let edit = null; // scale editor draft: {id|null, tonic, mode, pos}
-const isMix = () => settings.sel === 'mix' && library.length > 1;
-function activeScales(){
-  if(edit) return [{id:'draft', tonic:edit.tonic, mode:edit.mode, pos:edit.pos}];
-  if(isMix()) return library;
-  const s = library.find(x => x.id === settings.sel) || library[0];
-  return s ? [s] : [];
-}
-const focus = () => isMix() ? null : activeScales()[0];
+function activeScales(){ return [library.find(x => x.id === settings.sel) || library[0]]; }
+const focus = () => activeScales()[0];
 function scaleFor(midi){
   const f = focus(); if(f) return f;
   const act = activeScales();
@@ -372,7 +331,7 @@ function activePositions(){
 }
 const pool = () => [...new Set(activePositions().map(p => p.midi))].sort((a, b) => a - b);
 function allPositions(maxN){ const out = []; STRINGS.forEach((st, s) => { for(let n = 0; n <= maxN; n++) out.push({s, n, midi:st.midi + n}); }); return out; }
-const displayMax = () => edit ? 12 : Math.max(4, ...activePositions().map(p => p.n));
+const displayMax = () => Math.max(4, ...activePositions().map(p => p.n));
 function fingering(){
   const map = {};
   STRINGS.forEach((st, s) => { map[s + ':0'] = 0; });
@@ -503,7 +462,7 @@ let flash = null, lastTarget = null, autoTimer = null, seqTimers = [];
 function addMiss(m){ stats.miss[m] = (stats.miss[m] || 0) + 1; saveStats(); }
 function easeMiss(m){ if(stats.miss[m]){ stats.miss[m] *= 0.5; if(stats.miss[m] < 0.3) delete stats.miss[m]; saveStats(); } }
 function record(sc, ok){
-  if(!sc || sc.id === 'draft') return;
+  if(!sc) return;
   const h = stats.hist[sc.id] || []; h.push(ok ? 1 : 0); while(h.length > 20) h.shift();
   stats.hist[sc.id] = h; saveStats();
 }
@@ -537,7 +496,7 @@ function newQuestion(playNow = true){
 function resetQuestion(){
   clearTimeout(autoTimer); along = null; stopSequence(); stopAll();
   q = fresh(); explore.cur = null;
-  if(settings.mode === 'read' && !edit) newQuestion(false); else render();
+  if(settings.mode === 'read') newQuestion(false); else render();
 }
 function solve(revealed){
   q.solved = true; score.total++;
@@ -569,23 +528,12 @@ function onName(pc){
   render();
   const b = document.querySelector(`.nbtn[data-pc="${pc}"]`); if(b) b.classList.add('shake');
 }
-function guessFinger(n, s){
-  if(n === 0) return 0;
-  const order = [1, 2, 4], prev = [...edit.pos].reverse().find(p => p[1] > 0);
-  if(prev){
-    const frame = prev[1] - order.indexOf(prev[2]), i = n - frame;
-    if(i >= 0 && i <= 2) return order[i];
-    if(i === 3) return 4;
-  }
-  return 1;
-}
 function onTap(pos){
   if(!ensureAudio()) return;
   const midi = STRINGS[pos.s].midi + pos.n;
   flash = {s:pos.s, n:pos.n, id:Date.now()};
-  if(edit){ play(midi, 0, 1, pos.s); edit.pos.push([pos.s, pos.n, guessFinger(pos.n, pos.s)]); render(); return; }
   const mode = settings.mode;
-  if(mode === 'explore'){ if(along){ play(midi, 0, 1, pos.s); return; } stopSequence(); stopAll(); explore.cur = {...pos, midi}; play(midi, 0, 1, pos.s); render(); return; }
+  if(mode === 'explore') return; // metronome tab is for listening
   if(mode === 'name' || q.target == null || q.solved){ play(midi, 0, 1, pos.s); renderBoard(); return; }
   clearTimeout(autoTimer); stopAll(); play(midi, 0, 1, pos.s);
   if(midi === q.target){ solve(false); return; }
@@ -613,7 +561,7 @@ function startAlong(){
   along = {};
   const beat = 60 / settings.bpm;
   let t = ctx.currentTime + 0.2;
-  if(settings.metro || !settings.bassOn){ for(let i = 0; i < 4; i++) clickAt(t + i * beat, i === 0); t += 4 * beat; } // count-in: 1 bar
+  if(settings.metro){ for(let i = 0; i < 4; i++) clickAt(t + i * beat, i === 0); t += 4 * beat; } // count-in: 1 bar
   schedulePass(t);
   renderPrompt();
 }
@@ -622,9 +570,9 @@ function schedulePass(t0){
   const beat = 60 / settings.bpm, ps = scaleSeq(f), beats = Math.ceil((ps.length + 1) / 4) * 4; // fill whole 4/4 bars
   for(let i = 0; i < beats; i++){
     const when = t0 + i * beat, p = ps[i];
-    if(settings.metro || !settings.bassOn) clickAt(when, i % 4 === 0);
+    if(settings.metro) clickAt(when, i % 4 === 0);
     if(!p) continue;
-    if(settings.bassOn) playAt(p.midi, when, 1, p.s);
+    playAt(p.midi, when, 1, p.s);
     seqTimers.push(setTimeout(() => { explore.cur = {s:p.s, n:p.n, midi:p.midi}; flash = {s:p.s, n:p.n, id:Date.now()}; renderBoard(); updateExploreStaff(); }, Math.max(0, (when - ctx.currentTime) * 1000)));
   }
   const end = t0 + beats * beat;
@@ -634,7 +582,7 @@ function schedulePass(t0){
     else seqTimers.push(setTimeout(stopAlong, 400));
   }, Math.max(0, (end - ctx.currentTime - 0.4) * 1000)));
 }
-function stopAlong(){ along = null; stopSequence(); stopAll(); if(settings.mode === 'explore' && !edit) renderPrompt(); }
+function stopAlong(){ along = null; stopSequence(); stopAll(); if(settings.mode === 'explore') renderPrompt(); }
 function updateExploreStaff(){
   const box = $('#exStaff'), f = focus(); if(!box || !f) return;
   const cur = explore.cur ? STRINGS[explore.cur.s].midi + explore.cur.n : null;
@@ -711,11 +659,6 @@ function boardDots(){
   const label = p => nameMidi(p.midi);
   const isTonic = p => { const sc = scaleFor(p.midi); return mod12(p.midi) === info(sc).tonicPc; };
   const keyDot = p => dots.push({...p, kind: isTonic(p) ? 'tonic' : 'key', label:label(p), finger:fing[p.s + ':' + p.n]});
-  if(edit){
-    allPositions(12).forEach(p => dots.push({...p, kind:'grid'}));
-    activePositions().forEach(keyDot);
-    return dots;
-  }
   if(mode === 'explore'){
     activePositions().forEach(keyDot);
     if(explore.cur){ const m = STRINGS[explore.cur.s].midi + explore.cur.n; dots.push({...explore.cur, midi:m, kind:'target', ring:true, label:label({midi:m}), finger:fing[explore.cur.s + ':' + explore.cur.n]}); }
@@ -758,7 +701,6 @@ function renderBoard(){
   STRINGS.forEach((st, i) => o.push(`<text class="fb-strname" x="${SX[i]}" y="17">${st.name}</text>`));
   boardDots().forEach(d => {
     const cx = SX[d.s], cy = yOfN(d.n);
-    if(d.kind === 'grid'){ o.push(`<circle class="dot-grid" cx="${cx}" cy="${cy}" r="9"/>`); return; }
     if(d.kind === 'ghost'){ o.push(`<circle class="dot-ghost" cx="${cx}" cy="${cy}" r="${d.n === 0 ? 6 : 7}"/>`); return; }
     const small = maxN > 7;
     const r = d.kind === 'target' ? (small ? 14 : 17) : (small ? 12.5 : (d.n === 0 ? 14 : 15.5));
@@ -790,46 +732,24 @@ const ICON_STOP = '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="
 const ICON_TICK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.6 2.5L10 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function refLabel(sc){ return settings.prelude === 'arp' ? 'Hear the key chord' : `Hear the key note (${noteName(parse(sc.tonic))})`; }
 
-function renderEditor(el){
-  const draft = activeScales()[0], fing = fingering();
-  const opts = KEY_CHOICES.map(k => { const [t, m] = k.split(' '); const v = t + '|' + m; return `<option value="${v}"${edit.tonic + '|' + edit.mode === v ? ' selected' : ''}>${noteName(parse(t))} ${m}</option>`; }).join('');
-  const notes = edit.pos.map(([s, n, f], i) => {
-    const m = STRINGS[s].midi + n;
-    return `<button class="ed-note" data-i="${i}"><b>${noteName(spellIn(draft, m))}</b><span>${STRINGS[s].name} · ${n === 0 ? 'open' : 'finger ' + f}</span></button>`;
-  }).join('');
-  el.innerHTML = `<div class="prompt-head"><p class="instr">${edit.id ? 'Edit scale' : 'New scale'}</p><span class="score">${edit.pos.length} notes</span></div>
-    <div class="ed-top"><div class="field"><label for="edKey">Key</label><select id="edKey">${opts}</select></div></div>
-    <p class="hint">Tap the notes on the fingerboard in the order you play them. Tap a note below to change its finger.</p>
-    <div class="ed-list">${notes || '<span class="hint">No notes yet.</span>'}</div>
-    ${edit.pos.length ? `<div class="staff-box wide">${scaleStaffSVG(draft, null)}</div>` : ''}
-    <div class="ed-actions">
-      <button class="btn small" data-ed="undo"${edit.pos.length ? '' : ' disabled'}>Undo</button>
-      <button class="btn small" data-ed="play"${edit.pos.length ? '' : ' disabled'}>${ICON_PLAY} Play</button>
-      <button class="btn small" data-ed="cancel">Cancel</button>
-      <button class="btn small primary" data-ed="save"${edit.pos.length >= 2 ? '' : ' disabled'}>Save</button>
-    </div>`;
-}
 function renderPrompt(){
   const mode = settings.mode, el = $('#prompt');
-  if(edit){ renderEditor(el); return; }
   const scoreTxt = score.total ? `${score.right}/${score.total} first try · streak ${score.streak}` : '';
   let head, staff, nameLine = '', where = '', actions = '', wide = false;
   if(mode === 'explore'){
     const f = focus(), cur = explore.cur ? STRINGS[explore.cur.s].midi + explore.cur.n : null;
-    head = f ? 'Play along with the scale.' : 'Pick one scale to play along.';
-    if(f){ staff = scaleStaffSVG(f, cur); wide = true; }
-    else staff = staffSVG(cur != null ? spell(cur) : null, false, cur != null ? scaleFor(cur) : null);
+    head = 'Choose the tempo, press Play and listen.';
+    staff = scaleStaffSVG(f, cur); wide = true;
     nameLine = cur != null ? nameMidi(cur) : '';
     where = cur != null ? whereText(explore.cur, fingering()) : '';
-    actions = f ? `<div class="tempo">
+    actions = `<div class="tempo">
         <span class="label">Tempo</span>
         <div class="tempo-row"><button class="tbtn" data-act="slower" aria-label="Slower">−</button><output id="bpmOut">${settings.bpm}</output><span class="bpm">BPM</span><button class="tbtn" data-act="faster" aria-label="Faster">+</button></div>
         <input type="range" id="bpm" min="40" max="160" step="2" value="${settings.bpm}" aria-label="Tempo in beats per minute">
       </div>
       <label class="check"><input type="checkbox" id="metro"${settings.metro ? ' checked' : ''}> Metronome</label>
-      <label class="check"><input type="checkbox" id="bassOn"${settings.bassOn ? ' checked' : ''}> Bass plays the scale</label>
       <label class="check"><input type="checkbox" id="loop"${settings.loop ? ' checked' : ''}> Repeat</label>
-      ${along ? `<button class="btn primary big" data-act="stop">${ICON_STOP} Stop</button>` : `<button class="btn primary big" data-act="along">${ICON_PLAY} Play</button>`}` : '';
+      ${along ? `<button class="btn primary big" data-act="stop">${ICON_STOP} Stop</button>` : `<button class="btn primary big" data-act="along">${ICON_PLAY} Play</button>`}`;
   } else {
     head = ({name:'Hear it, then name it.', find:'Hear it, then find it.', read:'Read it, then find it.'})[mode];
     const reveal = q.solved || (mode === 'read' && q.showName);
@@ -865,7 +785,7 @@ function renderPrompt(){
 }
 function renderAnswers(){
   const el = $('#answers');
-  if(edit || settings.mode !== 'name'){ el.hidden = true; el.innerHTML = ''; return; }
+  if(settings.mode !== 'name'){ el.hidden = true; el.innerHTML = ''; return; }
   el.hidden = false;
   const f = focus(), pcs = new Set(pool().map(mod12));
   let notes;
@@ -882,7 +802,7 @@ function renderAnswers(){
 }
 function renderTricky(){
   const el = $('#tricky');
-  const list = edit ? [] : pool().filter(m => (stats.miss[m] || 0) >= 1).sort((a, b) => stats.miss[b] - stats.miss[a]).slice(0, 6);
+  const list = pool().filter(m => (stats.miss[m] || 0) >= 1).sort((a, b) => stats.miss[b] - stats.miss[a]).slice(0, 6);
   el.hidden = !list.length;
   if(!list.length){ el.innerHTML = ''; return; }
   const fing = fingering();
@@ -891,75 +811,33 @@ function renderTricky(){
 function renderChips(){
   const chips = library.map(sc => {
     const lb = scaleLabel(sc), ms = mastery(sc);
-    return `<button class="chip" data-sel="${sc.id}" aria-pressed="${!edit && !isMix() && focus() === sc}">${ms && ms.learned ? `<span class="tick" title="Learned">${ICON_TICK}</span>` : ''}<span>${lb.name} <small>${lb.sub}</small></span><span class="meter" aria-label="${ms ? ms.pct + '% right' : 'not practised yet'}"><i style="width:${ms ? ms.pct : 0}%"></i></span></button>`;
+    return `<button class="chip" data-sel="${sc.id}" aria-pressed="${focus() === sc}">${ms && ms.learned ? `<span class="tick" title="Learned">${ICON_TICK}</span>` : ''}<span>${lb.name} <small>${lb.sub}</small></span><span class="meter" aria-label="${ms ? ms.pct + '% right' : 'not practised yet'}"><i style="width:${ms ? ms.pct : 0}%"></i></span></button>`;
   });
-  if(library.length > 1) chips.push(`<button class="chip" data-sel="mix" aria-pressed="${!edit && isMix()}"><span>Mix <small>all ${library.length}</small></span><span class="meter" aria-hidden="true"><i style="width:0"></i></span></button>`);
-  chips.push(`<button class="chip add" data-sel="new"${edit ? ' aria-pressed="true"' : ''}>+ New scale</button>`);
   $('#scaleChips').innerHTML = chips.join('');
 }
 const MODES = [
   {id:'name', t:'Name it', s:'Hear a note, pick its name'},
   {id:'find', t:'Find it', s:'Hear a note, tap the spot'},
   {id:'read', t:'Read it', s:'See a note, tap the spot'},
-  {id:'explore', t:'Play along', s:'Scale with a metronome'}
+  {id:'explore', t:'Metronome', s:'Hear the scale in tempo'}
 ];
 function renderTabs(){
-  const nav = $('#modeTabs'); nav.hidden = !!edit;
+  const nav = $('#modeTabs');
   nav.innerHTML = MODES.map(m => `<button class="mode" role="tab" data-mode="${m.id}" aria-selected="${settings.mode === m.id}"><b>${m.t}</b><span>${m.s}</span></button>`).join('');
 }
-const armed = new Set();
-function renderLibrary(){
-  const rows = library.map(sc => {
-    const lb = scaleLabel(sc), ms = mastery(sc);
-    return `<div class="lib-row"><b>${lb.name} ${lb.sub}</b><span>${sc.pos.length} notes${ms ? ` · ${ms.pct}% right lately` : ''}</span>
-      <button class="mini" data-lib="edit" data-id="${sc.id}">Edit</button>
-      <button class="mini${armed.has(sc.id) ? ' armed' : ''}" data-lib="del" data-id="${sc.id}"${library.length < 2 ? ' disabled' : ''}>${armed.has(sc.id) ? 'Tap again to delete' : 'Delete'}</button></div>`;
-  });
-  const missing = STARTERS.filter(s => !library.some(x => x.id === s.id));
-  if(missing.length) rows.push(`<div class="lib-row"><button class="mini" data-lib="restore">Restore starter scales (F, B♭, G major)</button></div>`);
-  $('#libList').innerHTML = rows.join('');
-}
-function render(){ renderChips(); renderTabs(); renderPrompt(); renderAnswers(); renderBoard(); renderTricky(); renderLibrary(); }
+function render(){ renderChips(); renderTabs(); renderPrompt(); renderAnswers(); renderBoard(); renderTricky(); }
 
 /* ---------- wiring ---------- */
 $('#scaleChips').addEventListener('click', e => {
   const b = e.target.closest('[data-sel]'); if(!b) return;
   const v = b.dataset.sel;
-  if(v === 'new'){ if(!edit) startEdit(null); return; }
-  edit = null; settings.sel = v; saveSettings(); lastTarget = null; resetQuestion();
+  settings.sel = v; saveSettings(); lastTarget = null; resetQuestion();
 });
-function startEdit(sc){
-  clearTimeout(autoTimer); along = null; stopSequence(); stopAll();
-  edit = sc ? {id:sc.id, tonic:sc.tonic, mode:sc.mode, pos:sc.pos.map(p => p.slice())} : {id:null, tonic:'C', mode:'major', pos:[]};
-  q = fresh(); render();
-  window.scrollTo({top:0, behavior:'smooth'});
-}
 $('#modeTabs').addEventListener('click', e => {
   const b = e.target.closest('[data-mode]'); if(!b) return;
   settings.mode = b.dataset.mode; saveSettings(); resetQuestion();
 });
 $('#prompt').addEventListener('click', e => {
-  const sn = e.target.closest('.snote');
-  if(sn && !edit){ onTap({s:Number(sn.dataset.s), n:Number(sn.dataset.n)}); return; }
-  const ed = e.target.closest('[data-ed], .ed-note');
-  if(ed && edit){
-    if(ed.classList.contains('ed-note')){
-      const p = edit.pos[Number(ed.dataset.i)];
-      if(p[1] > 0){ const order = [1, 2, 4]; p[2] = order[(order.indexOf(p[2]) + 1) % 3]; }
-      ensureAudio(); play(STRINGS[p[0]].midi + p[1], 0, 1, p[0]); render(); return;
-    }
-    const a = ed.dataset.ed;
-    if(a === 'undo'){ edit.pos.pop(); render(); }
-    else if(a === 'play'){ runSequence(info(activeScales()[0]).positions); }
-    else if(a === 'cancel'){ edit = null; resetQuestion(); }
-    else if(a === 'save'){
-      const sc = {id:edit.id || 'u' + Date.now().toString(36), tonic:edit.tonic, mode:edit.mode, pos:edit.pos};
-      const i = library.findIndex(x => x.id === sc.id);
-      if(i >= 0) library[i] = sc; else library.push(sc);
-      saveLibrary(); edit = null; settings.sel = sc.id; settings.mode = 'explore'; saveSettings(); resetQuestion();
-    }
-    return;
-  }
   const b = e.target.closest('[data-act]'); if(!b) return;
   ensureAudio();
   const act = b.dataset.act;
@@ -978,8 +856,7 @@ function setBpm(v){
 }
 $('#prompt').addEventListener('input', e => { if(e.target.id === 'bpm') setBpm(Number(e.target.value)); });
 $('#prompt').addEventListener('change', e => {
-  if(['metro', 'bassOn', 'loop'].includes(e.target.id)){ settings[e.target.id] = e.target.checked; saveSettings(); }
-  if(e.target.id === 'edKey' && edit){ const [t, m] = e.target.value.split('|'); edit.tonic = t; edit.mode = m; render(); }
+  if(['metro', 'loop'].includes(e.target.id)){ settings[e.target.id] = e.target.checked; saveSettings(); }
 });
 $('#answers').addEventListener('click', e => {
   const b = e.target.closest('[data-pc]'); if(!b || b.disabled) return;
@@ -994,23 +871,6 @@ $('#board').addEventListener('click', e => {
   const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
   const hit = hitTest(p.x, p.y); if(hit) onTap(hit);
 });
-$('#libList').addEventListener('click', e => {
-  const b = e.target.closest('[data-lib]'); if(!b || b.disabled) return;
-  const id = b.dataset.id, act = b.dataset.lib;
-  if(act === 'edit'){ const sc = library.find(x => x.id === id); if(sc) startEdit(sc); }
-  else if(act === 'del'){
-    if(!armed.has(id)){ armed.add(id); renderLibrary(); setTimeout(() => { armed.delete(id); renderLibrary(); }, 3500); return; }
-    armed.delete(id); library = library.filter(x => x.id !== id); delete stats.hist[id];
-    saveLibrary(); saveStats();
-    if(settings.sel === id || library.length < 2) settings.sel = library[0].id;
-    saveSettings(); resetQuestion();
-  }
-  else if(act === 'restore'){
-    STARTERS.filter(s => !library.some(x => x.id === s.id)).forEach(s => library.push(JSON.parse(JSON.stringify(s))));
-    saveLibrary(); render();
-  }
-});
-
 const sBtn = $('#settingsBtn'), panel = $('#settingsPanel');
 sBtn.addEventListener('click', () => { panel.hidden = !panel.hidden; sBtn.setAttribute('aria-expanded', String(!panel.hidden)); });
 const bindSelect = (id, key, after) => { const el = $(id); el.value = String(settings[key]); el.addEventListener('change', () => { settings[key] = el.value; saveSettings(); after(); }); };
@@ -1022,7 +882,7 @@ bindCheck('#setFingers', 'fingers', render);
 bindCheck('#setAuto', 'auto', () => { if(!settings.auto) clearTimeout(autoTimer); });
 bindCheck('#setOctave', 'octave', () => {});
 
-if(settings.sel !== 'mix' && !library.some(x => x.id === settings.sel)) settings.sel = library[0].id;
+if(!library.some(x => x.id === settings.sel)) settings.sel = library[0].id;
 if(settings.mode === 'read') newQuestion(false); else render();
 })();
 </script>
