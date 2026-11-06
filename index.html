@@ -263,13 +263,14 @@ const store = {
 };
 
 /* ---------- settings, stats, scale library ---------- */
-const DEFAULTS = {sel:'F', mode:'name', naming:'letters', prelude:'tonic', hints:'dots', fingers:true, auto:true, octave:false, bpm:60, metro:true, loop:false, volume:85, boost:true};
+const DEFAULTS = {sel:'F', mode:'name', naming:'letters', prelude:'tonic', hints:'dots', fingers:true, auto:true, octave:false, bpm:60, metro:true, loop:false, volume:100, boost:true};
 const savedSettings = store.get('cbet.settings', {});
 const settings = Object.assign({}, DEFAULTS, savedSettings);
 if(savedSettings.key && !savedSettings.sel) settings.sel = savedSettings.key; // older version stored "key"
 delete settings.key; delete settings.range;
 const stats = Object.assign({miss:{}, hist:{}}, store.get('cbet.stats', {}));
 stats.hist = stats.hist || {};
+if(savedSettings.volume === 85 || savedSettings.volume == null) settings.volume = 100; // louder default since v9
 const saveSettings = () => store.set('cbet.settings', settings);
 const saveStats = () => store.set('cbet.stats', stats);
 
@@ -385,29 +386,43 @@ function ensureAudio(){
 }
 // Output chain. Phone speakers cannot reproduce a bass's low fundamentals, so the
 // "phone speaker boost" adds upper harmonics of each note (the ear hears the pitch
-// from them), lifts the pluck's presence, and removes sub-bass the speaker can't
-// play; a limiter then allows much more overall volume without crackling.
+// from them), lifts the 1-4 kHz range where phone speakers are loudest, and removes
+// sub-bass the speaker can't play. A compressor then evens out each note (the ringing
+// tail gets nearly as loud as the pluck), a limiter catches peaks, and a soft clipper
+// lets the result sit right at full level without crackling.
 function buildChain(c){
   const noteIn = c.createGain(), clickIn = c.createGain(), sum = c.createGain(), vol = c.createGain(), out = c.createGain();
-  clickIn.gain.value = 0.55;
   const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.Q.value = 0.7;
-  const presence = c.createBiquadFilter(); presence.type = 'peaking'; presence.frequency.value = 900; presence.Q.value = 0.9;
-  noteIn.connect(hp); hp.connect(presence); presence.connect(sum);
-  const lo = c.createBiquadFilter(); lo.type = 'lowpass'; lo.frequency.value = 260;
-  const shaper = c.createWaveShaper(), curve = new Float32Array(2048), k = 4;
-  for(let i = 0; i < curve.length; i++){ const x = i / (curve.length - 1) * 2 - 1; curve[i] = Math.tanh(k * x) / Math.tanh(k); }
-  shaper.curve = curve; shaper.oversample = '2x';
-  const hi = c.createBiquadFilter(); hi.type = 'highpass'; hi.frequency.value = 160;
+  const presence = c.createBiquadFilter(); presence.type = 'peaking'; presence.frequency.value = 1300; presence.Q.value = 0.8;
+  const air = c.createBiquadFilter(); air.type = 'highshelf'; air.frequency.value = 2600;
+  noteIn.connect(hp); hp.connect(presence); presence.connect(air); air.connect(sum);
+  const lo = c.createBiquadFilter(); lo.type = 'lowpass'; lo.frequency.value = 300;
+  const shaper = c.createWaveShaper(), drive = new Float32Array(2048), k = 6;
+  for(let i = 0; i < drive.length; i++){ const x = i / (drive.length - 1) * 2 - 1; drive[i] = Math.tanh(k * x) / Math.tanh(k); }
+  shaper.curve = drive; shaper.oversample = '2x';
+  const hi = c.createBiquadFilter(); hi.type = 'highpass'; hi.frequency.value = 200;
   const exciter = c.createGain();
   noteIn.connect(lo); lo.connect(shaper); shaper.connect(hi); hi.connect(exciter); exciter.connect(sum);
+  const comp = c.createDynamicsCompressor(); // evens out pluck and ring
+  comp.threshold.value = -32; comp.knee.value = 8; comp.ratio.value = 6; comp.attack.value = 0.004; comp.release.value = 0.3;
+  const makeup = c.createGain();
   const limiter = c.createDynamicsCompressor();
-  limiter.threshold.value = -14; limiter.knee.value = 2; limiter.ratio.value = 20; limiter.attack.value = 0.002; limiter.release.value = 0.15;
-  sum.connect(vol); clickIn.connect(vol); vol.connect(limiter); limiter.connect(out); out.gain.value = 1.3;
+  limiter.threshold.value = -4; limiter.knee.value = 0; limiter.ratio.value = 20; limiter.attack.value = 0.001; limiter.release.value = 0.1;
+  const clip = c.createWaveShaper(), soft = new Float32Array(2048);
+  for(let i = 0; i < soft.length; i++){ const x = i / (soft.length - 1) * 2 - 1; soft[i] = 0.98 * Math.tanh(1.6 * x) / Math.tanh(1.6); }
+  clip.curve = soft; clip.oversample = '2x';
+  sum.connect(vol); vol.connect(comp); comp.connect(makeup); makeup.connect(limiter);
+  clickIn.connect(limiter); // clicks skip the compressor so they don't make the bass pump
+  limiter.connect(clip); clip.connect(out);
   return {noteIn, clickIn, out, set(boost, volume){
-    hp.frequency.value = boost ? 75 : 10;
-    presence.gain.value = boost ? 6 : 0;
-    exciter.gain.value = boost ? 0.9 : 0;
-    vol.gain.value = 0.4 + 4.6 * Math.pow(volume / 100, 1.3); // 100% is about 5x the old level before the limiter
+    hp.frequency.value = boost ? 90 : 10;
+    presence.gain.value = boost ? 9 : 0;
+    air.gain.value = boost ? 4 : 0;
+    exciter.gain.value = boost ? 1.4 : 0;
+    vol.gain.value = 1.2;
+    makeup.gain.value = 7;      // always drive the limiter: as loud as possible at the top
+    clickIn.gain.value = 0.6;
+    out.gain.value = Math.pow(volume / 100, 1.6); // the Volume slider sets the final level (100% = loudest)
   }};
 }
 function applySound(){ if(chain) chain.set(settings.boost, settings.volume); }
