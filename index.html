@@ -680,8 +680,7 @@ function staffSVG(sp, placeholder, sc){
   if(sp){
     const dn = writtenDn(sp), y = yOf(dn);
     ledgers(out, nx, dn, yOf, 15);
-    const inKey = sc && info(sc).notes.some(n => n.pc === sp.pc && n.acc === sp.acc && n.l === sp.l);
-    if(!inKey && sp.acc !== 0) out.push(accShape(sp.acc, nx - 20, y));
+    if(sp.acc !== 0) out.push(accShape(sp.acc, nx - 20, y)); // written next to the note too, as in class
     out.push(`<ellipse class="staff-stroke" stroke-width="2.6" cx="${nx}" cy="${y}" rx="7.6" ry="5.2" transform="rotate(-20 ${nx} ${y})"/>`);
   } else if(placeholder){
     out.push(`<text class="staff-q" x="${nx}" y="${yOf(22) + 12}">?</text>`);
@@ -699,8 +698,7 @@ function scaleStaffSVG(sc, cur){
     const sp = spellIn(sc, p.midi), dn = writtenDn(sp), x = x0 + i * dx, y = yOf(dn);
     const on = cur != null && cur === p.midi;
     ledgers(out, x, dn, yOf, 12);
-    const inKey = info(sc).notes.some(n => n.pc === sp.pc);
-    const acc = !inKey && sp.acc !== 0 ? accShape(sp.acc, x - 15, y, 0.85) : '';
+    const acc = sp.acc !== 0 ? accShape(sp.acc, x - 17, y, 0.85) : ''; // flats/sharps next to the note, as in class
     out.push(`<g class="snote" data-s="${p.s}" data-n="${p.n}"><rect x="${x - Math.max(dx, 24) / 2}" y="0" width="${Math.max(dx, 24)}" height="${H}" fill="transparent"/>${acc}`
       + `<ellipse class="${on ? 'staff-on' : 'staff-stroke'}" stroke-width="2.4" cx="${x}" cy="${y}" rx="7.2" ry="5" transform="rotate(-20 ${x} ${y})"/>`
       + `<text class="staff-fing${on ? ' on' : ''}" x="${x}" y="${H - 8}">${p.f}</text></g>`);
