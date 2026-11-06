@@ -61,7 +61,7 @@ your device — and also means that clearing your browser data wipes it. Fair tr
 ## Sound credits
 
 The pizzicato recordings (mezzo-forte, one per string position) come from the
-[University of Iowa Musical Instrument Samples](https://theremin.music.uiowa.edu/MIS.html),
+[University of Iowa Musical Instrument Samples](https://theremin.music.uiowa.edu/MISdoublebass.html),
 recorded at the Electronic Music Studios by Lawrence Fritts and staff, and shared
 freely for any project without restrictions. Huge thanks to them — a real bass makes
 all the difference.
