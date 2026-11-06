@@ -211,18 +211,9 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
       <input type="range" id="setVolume" class="vol" min="0" max="100" step="1">
     </div>
     <div class="field">
-      <label for="setPrelude">Before each note, play</label>
-      <select id="setPrelude">
-        <option value="none">Nothing</option>
-        <option value="tonic">The key note (tonic)</option>
-        <option value="arp">The key chord (1-3-5-8)</option>
-      </select>
-    </div>
-    <div class="field">
       <label for="setNaming">Note names</label>
       <select id="setNaming">
         <option value="letters">C D E F G A B</option>
-        <option value="solfege">Do Re Mi Fa Sol La Si</option>
         <option value="greek">Ντο Ρε Μι Φα Σολ Λα Σι</option>
       </select>
     </div>
@@ -238,7 +229,6 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
       <span class="label">Options</span>
       <label class="check"><input type="checkbox" id="setFingers"> Show finger numbers</label>
       <label class="check"><input type="checkbox" id="setAuto"> Next note automatically</label>
-      <label class="check"><input type="checkbox" id="setOctave"> Play an octave higher (phone speaker)</label>
     </div>
     <p class="credit wide">Progress is saved on this device.</p>
   </section>
@@ -294,6 +284,9 @@ const stats = Object.assign({miss:{}, hist:{}}, store.get('cbet.stats', {}));
 stats.hist = stats.hist || {};
 if(savedSettings.volume === 85 || savedSettings.volume == null) settings.volume = 100; // louder default since v9
 delete settings.boost; delete settings.sound;
+settings.prelude = 'tonic';   // always play the key note before a quiz note
+settings.octave = false;      // always real pitch
+if(settings.naming === 'solfege') settings.naming = 'letters';
 const saveSettings = () => store.set('cbet.settings', settings);
 const saveStats = () => store.set('cbet.stats', stats);
 
@@ -969,12 +962,10 @@ const sBtn = $('#settingsBtn'), panel = $('#settingsPanel');
 sBtn.addEventListener('click', () => { panel.hidden = !panel.hidden; sBtn.setAttribute('aria-expanded', String(!panel.hidden)); });
 const bindSelect = (id, key, after) => { const el = $(id); el.value = String(settings[key]); el.addEventListener('change', () => { settings[key] = el.value; saveSettings(); after(); }); };
 const bindCheck = (id, key, after) => { const el = $(id); el.checked = !!settings[key]; el.addEventListener('change', () => { settings[key] = el.checked; saveSettings(); after(); }); };
-bindSelect('#setPrelude', 'prelude', render);
 bindSelect('#setNaming', 'naming', render);
 bindSelect('#setHints', 'hints', render);
 bindCheck('#setFingers', 'fingers', render);
 bindCheck('#setAuto', 'auto', () => { if(!settings.auto) clearTimeout(autoTimer); });
-bindCheck('#setOctave', 'octave', () => {});
 
 if(!library.some(x => x.id === settings.sel)) settings.sel = library[0].id;
 if(settings.mode === 'read') newQuestion(false); else render();
