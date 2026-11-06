@@ -622,13 +622,23 @@ function scaleSeq(sc){
 }
 
 /* ---------- rendering: staff ---------- */
+// Flats and sharps are drawn as shapes, centred on the staff line/space at y,
+// so they sit in the same place on every device (font glyphs differ on iPhone).
+function accShape(acc, x, y, s = 1){
+  const one = a => a < 0
+    ? `<path class="staff-stroke" stroke-width="${1.5 * s}" stroke-linecap="round" d="M${x - 3 * s} ${y - 13 * s} V${y + 4.5 * s} C${x + 1 * s} ${y + 3 * s} ${x + 6 * s} ${y - 0.5 * s} ${x + 5 * s} ${y - 3.5 * s} C${x + 4 * s} ${y - 6.5 * s} ${x} ${y - 5 * s} ${x - 3 * s} ${y - 2 * s}"/>`
+    : `<path class="staff-stroke" stroke-width="${1.3 * s}" d="M${x - 2.2 * s} ${y - 9 * s} V${y + 10 * s} M${x + 2.2 * s} ${y - 10 * s} V${y + 9 * s}"/>`
+      + `<path class="staff-stroke" stroke-width="${2.6 * s}" d="M${x - 5 * s} ${y - 2 * s} L${x + 5 * s} ${y - 5 * s} M${x - 5 * s} ${y + 5 * s} L${x + 5 * s} ${y + 2 * s}"/>`;
+  let o = ''; for(let i = 0; i < Math.abs(acc); i++) o += one(acc).replace(/M([\d.-]+)/g, (m, v) => 'M' + (Number(v) - i * 9 * s));
+  return o;
+}
 function clefAndSig(out, sc, yOf){
   const yF = yOf(24);
   out.push(`<circle class="staff-ink" cx="15" cy="${yF}" r="3.8"/>`);
   out.push(`<path class="staff-stroke" stroke-width="3.2" stroke-linecap="round" d="M13 ${yF} C13 ${yF - 10}, 23 ${yF - 14}, 30 ${yF - 11} C39 ${yF - 7}, 39 ${yF + 8}, 32 ${yF + 17} C26 ${yF + 25}, 18 ${yF + 30}, 9 ${yF + 34}"/>`);
   out.push(`<circle class="staff-ink" cx="44" cy="${yF - 6}" r="2.3"/><circle class="staff-ink" cx="44" cy="${yF + 6}" r="2.3"/>`);
   const sig = sc ? info(sc).sig : [];
-  sig.forEach((a, i) => out.push(`<text class="staff-acc" x="${58 + i * 11}" y="${yOf(a.dn) + (a.acc < 0 ? 3 : 8)}">${a.acc < 0 ? '♭' : '♯'}</text>`));
+  sig.forEach((a, i) => out.push(accShape(a.acc, 60 + i * 11, yOf(a.dn))));
   return 58 + sig.length * 11;
 }
 const writtenDn = sp => (Math.floor((sp.midi - sp.acc) / 12) - 1 + 1) * 7 + sp.l; // bass sounds an octave lower than written
@@ -646,7 +656,7 @@ function staffSVG(sp, placeholder, sc){
     const dn = writtenDn(sp), y = yOf(dn);
     ledgers(out, nx, dn, yOf, 15);
     const inKey = sc && info(sc).notes.some(n => n.pc === sp.pc && n.acc === sp.acc && n.l === sp.l);
-    if(!inKey && sp.acc !== 0) out.push(`<text class="staff-acc" x="${nx - 22}" y="${y + (sp.acc < 0 ? 3 : 8)}">${accSym(sp.acc)}</text>`);
+    if(!inKey && sp.acc !== 0) out.push(accShape(sp.acc, nx - 20, y));
     out.push(`<ellipse class="staff-stroke" stroke-width="2.6" cx="${nx}" cy="${y}" rx="7.6" ry="5.2" transform="rotate(-20 ${nx} ${y})"/>`);
   } else if(placeholder){
     out.push(`<text class="staff-q" x="${nx}" y="${yOf(22) + 12}">?</text>`);
@@ -665,7 +675,7 @@ function scaleStaffSVG(sc, cur){
     const on = cur != null && cur === p.midi;
     ledgers(out, x, dn, yOf, 12);
     const inKey = info(sc).notes.some(n => n.pc === sp.pc);
-    const acc = !inKey && sp.acc !== 0 ? `<text class="staff-acc" x="${x - 15}" y="${y + (sp.acc < 0 ? 3 : 8)}" font-size="18">${accSym(sp.acc)}</text>` : '';
+    const acc = !inKey && sp.acc !== 0 ? accShape(sp.acc, x - 15, y, 0.85) : '';
     out.push(`<g class="snote" data-s="${p.s}" data-n="${p.n}"><rect x="${x - Math.max(dx, 24) / 2}" y="0" width="${Math.max(dx, 24)}" height="${H}" fill="transparent"/>${acc}`
       + `<ellipse class="${on ? 'staff-on' : 'staff-stroke'}" stroke-width="2.4" cx="${x}" cy="${y}" rx="7.2" ry="5" transform="rotate(-20 ${x} ${y})"/>`
       + `<text class="staff-fing${on ? ' on' : ''}" x="${x}" y="${H - 8}">${p.f}</text></g>`);
