@@ -30,9 +30,9 @@ with the metronome. Good for warming up or for just poking at it.
 
 | | |
 |---|---|
-| **Scales** | F, B♭ and G major, one octave each |
+| **Scales** | F, B♭, G and C major, one octave each |
 | **Note names** | A B C · Do Re Mi · Ντο Ρε Μι |
-| **Fingerings** | Simandl 1–2–4, as taught in class: F and B♭ in half position (1 4 0 1 4 0 2 4), G in 1st position (2 0 1 2 0 1 4 0) |
+| **Fingerings** | Simandl 1–2–4, as taught in class: F and B♭ in half position (1 4 0 1 4 0 2 4), G in 1st position (2 0 1 2 0 1 4 0), C in 1st position with a shift (2 0 1 2 0 1 –2 4) |
 
 ---
 
