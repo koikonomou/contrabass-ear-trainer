@@ -155,13 +155,6 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .nbtn.shake{animation:shake .32s}
 @keyframes shake{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 
-/* tricky notes */
-.tricky{display:flex;flex-direction:column;gap:8px}
-.tricky[hidden]{display:none!important}
-.tricky-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.tchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px;min-height:36px}
-.tchip b{font-family:var(--font-display);font-weight:800}
-
 /* fingerboard */
 .board-wrap{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px}
 #board{width:100%;max-width:400px;height:auto;display:block;touch-action:manipulation;user-select:none;-webkit-user-select:none;cursor:pointer}
@@ -254,7 +247,6 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
       <figure class="board-wrap">
         <svg id="board" role="img" aria-label="Double bass fingerboard. Tap a spot to play that note."></svg>
       </figure>
-      <section class="tricky" id="tricky" hidden></section>
     </div>
   </main>
 
@@ -890,14 +882,6 @@ function renderAnswers(){
     return `<button class="${cls}" data-pc="${n.pc}"${dis}>${noteName(n)}</button>`;
   }).join('');
 }
-function renderTricky(){
-  const el = $('#tricky');
-  const list = pool().filter(m => (stats.miss[m] || 0) >= 1).sort((a, b) => stats.miss[b] - stats.miss[a]).slice(0, 6);
-  el.hidden = !list.length;
-  if(!list.length){ el.innerHTML = ''; return; }
-  const fing = fingering();
-  el.innerHTML = `<p class="label">Practice these</p><div class="tricky-row">${list.map(m => `<button class="tchip" data-midi="${m}"><b>${nameMidi(m)}</b> · ${whereText(posOf(m), fing)}</button>`).join('')}</div>`;
-}
 function renderChips(){
   const chips = library.map(sc => {
     const lb = scaleLabel(sc), ms = mastery(sc);
@@ -918,7 +902,7 @@ function renderTabs(){
   const nav = $('#modeTabs');
   nav.innerHTML = MODES.map(m => `<button class="mode" role="tab" data-mode="${m.id}" aria-selected="${settings.mode === m.id}"><b>${m.t}</b><span>${m.s}</span></button>`).join('');
 }
-function render(){ renderChips(); renderTabs(); renderPrompt(); renderAnswers(); renderBoard(); renderTricky(); }
+function render(){ renderChips(); renderTabs(); renderPrompt(); renderAnswers(); renderBoard(); }
 
 /* ---------- wiring ---------- */
 $('#scaleChips').addEventListener('click', e => {
@@ -961,10 +945,6 @@ $('#prompt').addEventListener('change', e => {
 $('#answers').addEventListener('click', e => {
   const b = e.target.closest('[data-pc]'); if(!b || b.disabled) return;
   onName(Number(b.dataset.pc));
-});
-$('#tricky').addEventListener('click', e => {
-  const b = e.target.closest('[data-midi]'); if(!b) return;
-  const m = Number(b.dataset.midi), p = posOf(m); play(m, 0, 1, p.s); flash = {s:p.s, n:p.n, id:Date.now()}; renderBoard();
 });
 $('#board').addEventListener('click', e => {
   const board = $('#board'), ctm = board.getScreenCTM(); if(!ctm) return;
