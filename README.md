@@ -30,9 +30,9 @@ with the metronome. Good for warming up or for just poking at it.
 
 | | |
 |---|---|
-| **Scales** | F, B♭, G and C major, one octave each |
+| **Scales** | All 15 major scales (C, F, B♭, E♭, A♭, D♭, G♭, C♭, G, D, A, E, B, F♯, C♯), one octave each |
 | **Note names** | A B C · Do Re Mi · Ντο Ρε Μι |
-| **Fingerings** | Simandl 1–2–4, as taught in class: F and B♭ in half position (1 4 0 1 4 0 2 4), G in 1st position (2 0 1 2 0 1 4 0), C in 1st position with a shift (2 0 1 2 0 1 –2 4) |
+| **Fingerings** | As taught in class: strings and fingers for every note, from the teacher's "Major Scales for Upright Bass in All Keys" (alternatives such as 2/1 shown as written) |
 
 ---
 
