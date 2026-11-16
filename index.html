@@ -16,7 +16,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
 <style>
-/* Layout: phone-first practice stack (scales → mode → prompt card → answers → fingerboard); on wide screens the ebony fingerboard sits in its own right-hand column. */
 :root{
   --bg:#eceee8; --surface:#f9faf6; --ink:#1b201d; --muted:#59625b; --line:#d2d8cd;
   --accent:#1f5a6b; --accent-ink:#ffffff; --accent-soft:#d5e5e9;
@@ -57,7 +56,6 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .ghost-btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;white-space:nowrap}
 .ghost-btn[aria-expanded="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 
-/* scale chips */
 .label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0}
 .chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip-group{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;flex-basis:100%}
@@ -73,13 +71,11 @@ h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(26px
 .chip[aria-pressed="true"] .meter{background:color-mix(in srgb, var(--accent-ink) 30%, transparent)}
 .chip[aria-pressed="true"] .meter i{background:var(--accent-ink)}
 
-/* pizz / arco switch */
 .scale-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;justify-content:space-between}
 .tech{display:inline-flex;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface);flex:none}
 .tech button{border:0;background:transparent;padding:0 16px;min-height:46px;font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--muted)}
 .tech button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 
-/* mode tabs */
 .modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .mode{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1.5px solid var(--line);background:transparent;border-radius:12px;padding:9px 11px;min-height:46px}
 .mode b{font-family:var(--font-display);font-weight:800;font-size:17px;line-height:1.1}
@@ -305,7 +301,7 @@ const STARTERS = [
   {id:"Fs", tonic:"F#", mode:'major', pos:[[0,2,1],[0,4,4],[1,1,1],[1,2,"1/2"],[1,4,4],[2,1,1],[2,3,2],[2,4,4]]},
   {id:"Cs", tonic:"C#", mode:'major', pos:[[1,4,4],[2,1,1],[2,3,2],[2,4,4],[3,1,1],[3,3,4],[3,5,2],[3,6,4]]}
 ];
-const library = STARTERS; // only the scales taught in class
+const library = STARTERS;
 
 /* ---------- music theory ---------- */
 const STRINGS = [{name:'E', midi:28}, {name:'A', midi:33}, {name:'D', midi:38}, {name:'G', midi:43}];
@@ -317,7 +313,7 @@ const NAMES = {
   greek:['Ντο','Ρε','Μι','Φα','Σολ','Λα','Σι']
 };
 const STEPS = {major:[2,2,1,2,2,2,1], minor:[2,1,2,2,1,2,2]};
-const SHARP_DN = {F:24, C:21, G:25, D:22, A:19, E:23, B:20}; // key-signature places on the bass-clef staff
+const SHARP_DN = {F:24, C:21, G:25, D:22, A:19, E:23, B:20}; 
 const FLAT_DN = {B:20, E:23, A:19, D:22, G:18, C:21, F:17};
 const mod12 = x => ((x % 12) + 12) % 12;
 const parse = str => { const l = LETTERS.indexOf(str[0]); const acc = str.length > 1 ? (str[1] === 'b' ? -1 : 1) : 0; return {l, acc, pc:mod12(LETTER_PC[l] + acc)}; };
