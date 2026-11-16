@@ -31,7 +31,7 @@ with the metronome. Good for warming up or for just poking at it.
 | | |
 |---|---|
 | **Scales** | All 15 major scales (C, F, B♭, E♭, A♭, D♭, G♭, C♭, G, D, A, E, B, F♯, C♯), one octave each |
-| **Note names** | A B C · Do Re Mi · Ντο Ρε Μι |
+| **Note names** | A B C  · Ντο Ρε Μι |
 | **Fingerings** | As taught in class: strings and fingers for every note, from the teacher's "Major Scales for Upright Bass in All Keys" (alternatives such as 2/1 shown as written) |
 
 ---
